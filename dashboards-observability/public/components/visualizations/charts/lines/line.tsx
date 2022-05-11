@@ -4,7 +4,7 @@
  */
 
 import React, { useMemo } from 'react';
-import { take, isEmpty, last } from 'lodash';
+import { take, isEmpty, last, uniq, has } from 'lodash';
 import { Plt } from '../../plotly/plot';
 import { AvailabilityUnitType } from '../../../event_analytics/explorer/visualizations/config_panel/config_panes/config_controls/config_availability';
 import { ThresholdUnitType } from '../../../event_analytics/explorer/visualizations/config_panel/config_panes/config_controls/config_thresholds';
@@ -24,6 +24,8 @@ export const Line = ({ visualizations, layout, config }: any) => {
     dataConfig?.valueOptions && dataConfig.valueOptions.xaxis ? dataConfig.valueOptions.xaxis : [];
   const yaxis =
     dataConfig?.valueOptions && dataConfig.valueOptions.xaxis ? dataConfig.valueOptions.yaxis : [];
+  const metric =
+    dataConfig?.valueOptions && dataConfig.valueOptions.metric ? dataConfig.valueOptions.metric : [];
   const lastIndex = fields.length - 1;
   const mode =
     dataConfig?.chartOptions && dataConfig.chartOptions.mode && dataConfig.chartOptions.mode[0]
@@ -31,6 +33,7 @@ export const Line = ({ visualizations, layout, config }: any) => {
       : 'line';
 
   let valueSeries;
+
   if (!isEmpty(xaxis) && !isEmpty(yaxis)) {
     valueSeries = [...yaxis];
   } else {
@@ -38,16 +41,58 @@ export const Line = ({ visualizations, layout, config }: any) => {
   }
 
   const [calculatedLayout, lineValues] = useMemo(() => {
-    let calculatedLineValues = valueSeries.map((field: any) => {
-      return {
-        x: data[!isEmpty(xaxis) ? xaxis[0]?.label : fields[lastIndex].name],
-        y: data[field.name],
-        type: 'line',
-        name: field.name,
-        mode,
-      };
-    });
+    
+    let calculatedLineValues = [];
 
+    if (!isEmpty(metric) && metric.length > 0) {
+      const xaxisField = fields[fields.length - 2];
+      const yaxisField = fields[fields.length - 1];
+      const zMetrics =
+        dataConfig?.valueOptions && dataConfig?.valueOptions.metric
+          ? dataConfig?.valueOptions.metric[0]
+          : fields[fields.length - 3];
+      const uniqueYaxis = uniq(data[yaxisField.name]);
+      const uniqueXaxis = uniq(data[xaxisField.name]);
+      const buckets = {};
+
+      // maps bukcets to metrics
+      for (let i = 0; i < data[xaxisField.name].length; i++) {
+        buckets[`${data[xaxisField.name][i]},${data[yaxisField.name][i]}`] = data[zMetrics.name][i];
+      }
+
+      const res = [];
+      
+      for (let i = 0; i < uniqueYaxis.length; i++) {
+        let yvalues = [];
+        for (let j = 0; j < uniqueXaxis.length; j++) {
+          if (has(buckets, `${uniqueXaxis[j]},${uniqueYaxis[i]}`)) {
+            yvalues.push(buckets[`${uniqueXaxis[j]},${uniqueYaxis[i]}`]);
+          } else {
+            yvalues.push(null);
+          }
+        }
+        res.push({
+          x: uniqueXaxis,
+          y: yvalues,
+          name: uniqueYaxis[i],
+          type: 'line',
+          mode,
+        });
+      }
+
+      calculatedLineValues = res;
+
+    } else {
+      calculatedLineValues = valueSeries.map((field: any) => {
+        return {
+          x: data[!isEmpty(xaxis) ? xaxis[0]?.label : fields[lastIndex].name],
+          y: data[field.name],
+          type: 'line',
+          name: field.name,
+          mode,
+        };
+      });
+    }
     const mergedLayout = {
       ...layout,
       ...layoutConfig.layout,

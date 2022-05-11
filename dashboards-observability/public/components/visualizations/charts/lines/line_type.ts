@@ -58,6 +58,12 @@ export const createLineTypeDefinition = (params: any = {}) => ({
                 component: null,
                 mapTo: 'yaxis',
               },
+              {
+                name: 'Metric',
+                isSingleSelection: true,
+                component: null,
+                mapTo: 'metric',
+              },
             ],
           },
           {
