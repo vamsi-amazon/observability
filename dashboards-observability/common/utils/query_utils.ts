@@ -47,7 +47,7 @@ export const preprocessQuery = ({
   if (isEmpty(tokens)) return finalQuery;
 
   if(rawQuery.match(PPL_PROMQL_REGEX)) {
-      finalQuery = `${rawQuery} + | where ${timeField} >= '${start}' and ${timeField} <= '${end}'${tokens![3]}`;
+      finalQuery = `${rawQuery} | where ${timeField} >= '${start}' and ${timeField} <= '${end}'`;
       if (isLiveQuery) {
         finalQuery = finalQuery + ` | sort - ${timeField}`;
       }
