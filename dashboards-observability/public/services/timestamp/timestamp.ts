@@ -60,6 +60,11 @@ export default class TimestampUtils {
   }
 
   async getIndexMappings(index: string) {
+
+    if( index.startsWith("prometheus")) {
+      var result = {"prometheus.prometheus_http_requests_total":{"mappings":{"properties":{"@timestamp":{"type":"date"},"@value":{"type":"double"},"metric":{"type":"text"}}}}}
+      return result;
+    }
     return await this.dslService.fetchFields(index);
   }
 }
