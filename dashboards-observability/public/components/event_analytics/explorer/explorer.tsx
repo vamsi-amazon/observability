@@ -54,6 +54,7 @@ import {
 } from '../../../../common/constants/explorer';
 import {
   PPL_STATS_REGEX,
+  PPL_PROM_REGEX,
   PPL_NEWLINE_REGEX,
   LIVE_OPTIONS,
   LIVE_END_TIME,
@@ -353,6 +354,9 @@ export const Explorer = ({
 
     // search
     if (finalQuery.match(PPL_STATS_REGEX)) {
+      getVisualizations();
+      getAvailableFields(`search source=${curIndex}`);
+    } else if(finalQuery.match(PPL_PROM_REGEX)) {
       getVisualizations();
       getAvailableFields(`search source=${curIndex}`);
     } else {

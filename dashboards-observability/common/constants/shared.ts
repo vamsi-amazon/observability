@@ -36,6 +36,7 @@ export const PPL_DATE_FORMAT = 'YYYY-MM-DD HH:mm:ss.SSSSSS';
 export const SPAN_REGEX = /span/;
 export const PPL_SPAN_REGEX = /by\s*span/i;
 export const PPL_STATS_REGEX = /\|\s*stats/i;
+export const PPL_PROM_REGEX = /\|\s*prometheus/i;
 export const PPL_INDEX_INSERT_POINT_REGEX = /(search source|source|index)\s*=\s*([^|\s]+)(.*)/i;
 export const PPL_INDEX_REGEX = /(search source|source|index)\s*=\s*([^|\s]+)/i;
 export const PPL_NEWLINE_REGEX = /[\n\r]+/g;
