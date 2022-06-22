@@ -58,6 +58,7 @@ import {
   PPL_NEWLINE_REGEX,
   LIVE_OPTIONS,
   LIVE_END_TIME,
+  PPL_PROMQL_REGEX,
 } from '../../../../common/constants/shared';
 import { getIndexPatternFromRawQuery, preprocessQuery, buildQuery } from '../../../../common/utils';
 import { useFetchEvents, useFetchVisualizations } from '../hooks';
@@ -307,6 +308,7 @@ export const Explorer = ({
     const curQuery = queryRef.current;
     const rawQueryStr = buildQuery(appBasedRef.current, curQuery![RAW_QUERY]);
     const curIndex = getIndexPatternFromRawQuery(rawQueryStr);
+
     if (isEmpty(rawQueryStr)) return;
 
     if (isEmpty(curIndex)) {
@@ -356,7 +358,12 @@ export const Explorer = ({
     if (finalQuery.match(PPL_STATS_REGEX)) {
       getVisualizations();
       getAvailableFields(`search source=${curIndex}`);
-    } else if(finalQuery.match(PPL_PROM_REGEX)) {
+    } 
+    else if(finalQuery.match(PPL_PROMQL_REGEX)) {
+      getVisualizations();
+      getAvailableFields(rawQueryStr);
+    }
+    else if(finalQuery.match(PPL_PROM_REGEX)) {
       getVisualizations();
       getAvailableFields(`search source=${curIndex}`);
     } else {
