@@ -11,7 +11,7 @@ import _ from 'lodash';
 import { Moment } from 'moment-timezone';
 import React from 'react';
 import { Layout } from 'react-grid-layout';
-import { PPL_DATE_FORMAT, PPL_INDEX_REGEX } from '../../../../common/constants/shared';
+import { PPL_DATE_FORMAT, PPL_INDEX_REGEX, PPL_PROMQL_REGEX } from '../../../../common/constants/shared';
 import PPLService from '../../../services/requests/ppl';
 import { CoreStart } from '../../../../../../src/core/public';
 import { CUSTOM_PANELS_API_PREFIX } from '../../../../common/constants/custom_panels';
@@ -90,6 +90,14 @@ const queryAccumulator = (
   endTime: string,
   panelFilterQuery: string
 ) => {
+
+  if(originalQuery.match(PPL_PROMQL_REGEX)) {
+    const timeQueryFilter = ` | where ${timestampField} >= '${convertDateTime(
+      startTime
+    )}' and ${timestampField} <= '${convertDateTime(endTime, false)}'`;
+    return originalQuery + timeQueryFilter;
+  }
+
   const indexMatchArray = originalQuery.match(PPL_INDEX_REGEX);
   if (indexMatchArray == null) {
     throw Error('index not found in Query');
